@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.pyc 
+.env
+
+*.tar
+*.tar.gz
+
+Data/*
+
+Models/*
+
+!Models/Simple_Models/RandomForestClassifier.joblib
+
+
+.DS_Store
+.ipynb_checkpoints/

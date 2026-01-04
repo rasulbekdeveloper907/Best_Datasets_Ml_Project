@@ -1,0 +1,28 @@
+# Virtual Environment
+venv
+__pycache__
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb 
+
+# Git 
+.git
+.gitignore
+
+# Data files (training only )
+*.csv
+*.parquet
+data/
+
+# Environment Variables
+.env
+
+# OS  /Logs 
+*.Logs
+.DS_Store
+
+# models 
+*.pkl
+*.joblib
+

@@ -34,44 +34,26 @@ def load_model():
 from pydantic import BaseModel
 from typing import Optional
 
-class HotelBookingInput(BaseModel):
-    hotel: str
-    lead_time: int
-    arrival_date_year: int
-    arrival_date_month: str
-    arrival_date_week_number: int
-    arrival_date_day_of_month: int
-    stays_in_weekend_nights: int
-    stays_in_week_nights: int
-    adults: int
-    children: int
-    babies: int
-    meal: str
-    country: str
-    market_segment: str
-    distribution_channel: str
-    is_repeated_guest: int
-    previous_cancellations: int
-    previous_bookings_not_canceled: int
-    reserved_room_type: str
-    assigned_room_type: str
-    booking_changes: int
-    deposit_type: str
-    agent: Optional[int] = 0
-    company: Optional[int] = 0
-    days_in_waiting_list: int
-    customer_type: str
-    adr: float
-    required_car_parking_spaces: int
-    total_of_special_requests: int
-    reservation_status: str
-    reservation_status_date: str
-    city: str
+class DatasetInput(BaseModel):
+    id: int
+    ref: str
+    subtitle: str
+    creatorname: str
+    creatorurl: str
+    totalbytes: int
+    url: str
+    lastupdated: str
+    downloadcount: int
+    ownername: str
+    ownerref: str
+    title: str
+    viewcount: int
+    tags: str
 
 
 class PredictionOutput(BaseModel):
-    is_canceled: int
-    cancellation_probability: float
+    predicted_cluster: int
+    cluster_probability: float
 
 
 
@@ -91,29 +73,32 @@ def health():
 # Predict
 # --------------------------------------------------
 import logging
+import pandas as pd
+from fastapi import HTTPException
 
-# Logging konfiguratsiyasi (server boshida)
+# Logging konfiguratsiyasi
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 @app.post("/predict", response_model=PredictionOutput)
-def predict(data: HotelBookingInput):
+def predict(data: DatasetInput):
+
     if pipeline is None:
-        raise RuntimeError("Model not loaded")
+        raise HTTPException(status_code=500, detail="Model not loaded")
 
     # Input → DataFrame
     df = pd.DataFrame([data.model_dump()])
 
-    # 🔍 DEBUG: logging bilan
+    # Predict probabilities (multiclass)
     proba_all = pipeline.predict_proba(df)[0]
     logger.debug("DEBUG predict_proba: %s", proba_all)
 
-    # Threshold bilan prediction
-    threshold = 0.25
-    pred = 1 if proba_all[1] >= threshold else 0
+    # Eng yuqori ehtimollikdagi cluster
+    predicted_cluster = int(proba_all.argmax())
+    cluster_probability = float(proba_all[predicted_cluster])
 
     return PredictionOutput(
-        is_canceled=pred,
-        cancellation_probability=round(float(proba_all[1]), 4)
+        predicted_cluster=predicted_cluster,
+        cluster_probability=round(cluster_probability, 4)
     )
-
