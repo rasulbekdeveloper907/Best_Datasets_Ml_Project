@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from pathlib import Path
 
-MODEL_PATH = Path(r"../Models\Simple_Models\RandomForestClassifier.joblib")
+MODEL_PATH = Path(r"./Models\Simple_Models\RandomForestClassifier.joblib")
 
 app = FastAPI(
     title=" Best Dataset Prediction API",
